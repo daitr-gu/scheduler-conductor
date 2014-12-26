@@ -472,7 +472,6 @@ class ComputeTaskManager(base.Base):
         self.compute_rpcapi = compute_rpcapi.ComputeAPI()
         self.image_api = image.API()
         self.scheduler_client = scheduler_client.SchedulerClient()
-        self.host_api = compute.HostAPI()
 
     @messaging.expected_exceptions(exception.NoValidHost,
                                    exception.ComputeServiceUnavailable,
@@ -656,20 +655,7 @@ class ComputeTaskManager(base.Base):
                         instance.uuid, request_spec)
             return
 
-        compute_nodes = self.host_api.compute_node_get_all(context)
-        usable_cpu = 0
-        total_cpu = 0
-        for hyp in compute_nodes:
-            total_cpu += hyp['vcpus']
-            usable_cpu = total_cpu - hyp['vcpus_used']
-
-        count = 0
         for (instance, host) in itertools.izip(instances, hosts):
-            if count >= usable_cpu:
-                break
-
-            count += 1
-
             try:
                 instance.refresh()
             except (exception.InstanceNotFound,
@@ -697,8 +683,8 @@ class ComputeTaskManager(base.Base):
 
         num_instances = request_spec['num_instances']
 
-        if usable_cpu < num_instances:
-            in_need = num_instances - usable_cpu
+        if len(hosts) < num_instances:
+            in_need = num_instances - len(hosts)
             print("We need help from partner")
             partners = DbAPI.partners_get_all(context)
 
