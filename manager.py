@@ -14,6 +14,7 @@
 
 """Handles database requests from other nova services."""
 
+from __future__ import division
 import copy
 import itertools
 
@@ -49,7 +50,6 @@ from nova.scheduler import driver as scheduler_driver
 from nova.scheduler import utils as scheduler_utils
 import nova.db.api as DbAPI
 from novaclient.v1_1 import client
-from __future__ import division
 
 LOG = logging.getLogger(__name__)
 
