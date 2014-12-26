@@ -702,6 +702,9 @@ class ComputeTaskManager(base.Base):
 
                         result = nt.scheduler_partner.estimate('HCMUT', data)
 
+                        result = result[1]
+                        print(result)
+
                         if not result:
                             print("Partner %s is now offline" % partner['shortname'])
                             continue
