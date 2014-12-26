@@ -47,6 +47,9 @@ from nova import quota
 from nova.scheduler import client as scheduler_client
 from nova.scheduler import driver as scheduler_driver
 from nova.scheduler import utils as scheduler_utils
+import nova.db.api as DbAPI
+from novaclient.v1_1 import client
+from __future__ import division
 
 LOG = logging.getLogger(__name__)
 
@@ -676,6 +679,67 @@ class ComputeTaskManager(base.Base):
                     security_groups=security_groups,
                     block_device_mapping=bdms, node=host['nodename'],
                     limits=host['limits'])
+
+        num_instances = request_spec['num_instances']
+
+        if len(hosts) < num_instances:
+            in_need = num_instances - len(hosts)
+            print("We need help from partner")
+            partners = DbAPI.partners_get_all(context)
+
+            if not partners:
+                print "There is no partner!"
+            else:
+                best_partner = None
+                best_k = None
+                for partner in partners:
+                    if self._is_can_request(partner, flavor, in_need):
+                        nt = self._get_partner_connection(partner, 'demo', 'compute')
+                        data = {}
+                        data['num_instances'] = in_need
+                        data['flavor_id'] = flavor.flavorid
+
+                        result = nt.scheduler_partner.estimate('HCMUT', data)
+
+                        if not result:
+                            print("Partner %s is now offline" % partner['shortname'])
+                            continue
+
+                        if result[u'success'] == 0:
+                            print ("Partner %s can not help us: %s" % (partner['shortname'], result[u'message']))
+                        else:
+                            k = self._estimate_k(partner, in_need)
+                            if not best_k or k > best_k:
+                                best_k = k
+                                best_partner = partner
+
+                if best_partner:
+                    print("Send partner %s request" % partner['shortname'])
+
+    def _is_can_request(self, partner, flavor, num_instances):
+        requested = partner['requested']
+        satisfied = partner['satisfied']
+        ratio = partner['limit_ratio']
+        total_vm = partner['total_vm']
+
+        max_requestable = (satisfied + total_vm) * ratio
+        requestable  = max_requestable - requested
+        in_need = flavor.vcpus * num_instances
+        return in_need <= requestable
+
+    def _estimate_k(self, partner, num_instances):
+        requested = partner['requested']
+        satisfied = partner['satisfied']
+        ratio = partner['limit_ratio']
+        requested += num_instances
+        l = requested / satisfied
+        k = l / ratio - 1
+        return k
+
+
+    def _get_partner_connection(self, partner, tenant, service_type):
+        nt = client.Client(partner['username'], partner['password'], tenant, partner['auth_url'], service_type=service_type)
+        return nt
 
     def _delete_image(self, context, image_id):
         return self.image_api.delete(context, image_id)
