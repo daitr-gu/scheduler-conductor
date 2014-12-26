@@ -700,9 +700,11 @@ class ComputeTaskManager(base.Base):
                         data['num_instances'] = in_need
                         data['flavor_id'] = flavor.flavorid
 
-                        result = nt.scheduler_partner.estimate('HCMUT', data)
+                        response = nt.scheduler_partner.estimate('HCMUT', data)
 
-                        result = result[1]
+                        scheduler_partner = response[1]
+
+                        result = scheduler_partner[u'scheduler_partner']
                         print(result)
 
                         if not result:
