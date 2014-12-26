@@ -715,7 +715,13 @@ class ComputeTaskManager(base.Base):
                                 best_partner = partner
 
                 if best_partner:
-                    print("Send partner %s request" % partner['shortname'])
+                    print("Send partner %s provision request" % partner['shortname'])
+                    nt = self._get_partner_connection(partner, 'demo', 'compute')
+                    data = {}
+                    data['num_instances'] = in_need
+                    data['flavor_id'] = 1
+                    result = nt.scheduler_partner.estimate('HCMUT', data)
+                    print(result)
 
     def _is_can_request(self, partner, flavor, num_instances):
         requested = partner['requested']
