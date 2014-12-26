@@ -727,6 +727,8 @@ class ComputeTaskManager(base.Base):
                     data['flavor_id'] = 1
                     result = nt.scheduler_partner.estimate('HCMUT', data)
                     print(result)
+                else:
+                    print("All partner can not help us: Out of ratio")
 
     def _is_can_request(self, partner, flavor, num_instances):
         requested = partner['requested']
