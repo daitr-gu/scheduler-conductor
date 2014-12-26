@@ -725,7 +725,7 @@ class ComputeTaskManager(base.Base):
                     data = {}
                     data['num_instances'] = in_need
                     data['flavor_id'] = 1
-                    result = nt.scheduler_partner.estimate('HCMUT', data)
+                    result = nt.scheduler_partner.provision('HCMUT', data)
                     print(result)
                 else:
                     print("All partner can not help us: Out of ratio")
