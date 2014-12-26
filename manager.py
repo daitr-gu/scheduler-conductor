@@ -726,6 +726,12 @@ class ComputeTaskManager(base.Base):
                     data['num_instances'] = in_need
                     data['flavor_id'] = 1
                     result = nt.scheduler_partner.provision('HCMUT', data)
+
+                    requested = partner['requested']
+
+                    DbAPI.partners_update(context, partner['shortname'], {
+                        'requested': requested + in_need
+                    })
                     print(result)
                 else:
                     print("All partner can not help us: Out of ratio")
