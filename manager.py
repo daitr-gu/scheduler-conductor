@@ -699,6 +699,7 @@ class ComputeTaskManager(base.Base):
                         data = {}
                         data['num_instances'] = in_need
                         data['flavor_id'] = flavor.flavorid
+                        data['name'] = request_spec['name']
 
                         response = nt.scheduler_partner.estimate('HCMUT', data)
 
