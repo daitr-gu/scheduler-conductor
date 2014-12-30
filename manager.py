@@ -699,7 +699,6 @@ class ComputeTaskManager(base.Base):
                         data = {}
                         data['num_instances'] = in_need
                         data['flavor_id'] = flavor.flavorid
-                        data['name'] = request_spec['instance_properties']['display_name']
 
                         response = nt.scheduler_partner.estimate('HCMUT', data)
 
@@ -726,6 +725,7 @@ class ComputeTaskManager(base.Base):
                     data = {}
                     data['num_instances'] = in_need
                     data['flavor_id'] = 1
+                    data['name'] = request_spec['instance_properties']['display_name']
                     result = nt.scheduler_partner.provision('HCMUT', data)
 
                     requested = partner['requested']
