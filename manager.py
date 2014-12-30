@@ -720,20 +720,20 @@ class ComputeTaskManager(base.Base):
                                 best_k = k
                                 best_partner = partner
                     else:
-                        print ("Partner %s can not help us: Out of ratio" % (partner['shortname']))
+                        print ("Partner %s can not help us: Out of ratio. Do not send request" % (partner['shortname']))
 
                 if best_partner:
-                    print("Send partner %s provision request" % partner['shortname'])
-                    nt = self._get_partner_connection(partner, 'demo', 'compute')
+                    print("Send partner %s provision request" % best_partner['shortname'])
+                    nt = self._get_partner_connection(best_partner, 'demo', 'compute')
                     data = {}
                     data['num_instances'] = in_need
                     data['flavor_id'] = 1
                     data['name'] = request_spec['instance_properties']['display_name']
                     result = nt.scheduler_partner.provision('HCMUT', data)
 
-                    requested = partner['requested']
+                    requested = best_partner['requested']
 
-                    DbAPI.partners_update(context, partner['shortname'], {
+                    DbAPI.partners_update(context, best_partner['shortname'], {
                         'requested': requested + in_need
                     })
                     print(result)
