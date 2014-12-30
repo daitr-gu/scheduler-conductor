@@ -716,7 +716,7 @@ class ComputeTaskManager(base.Base):
                         else:
                             k = self._estimate_k(partner, in_need)
                             print ("Partner %s can help us: k = %s" % (partner['shortname'], k))
-                            if not best_k or k > best_k:
+                            if not best_k or k < best_k:
                                 best_k = k
                                 best_partner = partner
                     else:
