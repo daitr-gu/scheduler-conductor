@@ -715,9 +715,12 @@ class ComputeTaskManager(base.Base):
                             print ("Partner %s can not help us: %s" % (partner['shortname'], result[u'message']))
                         else:
                             k = self._estimate_k(partner, in_need)
+                            print ("Partner %s can help us: k = %s" % (partner['shortname'], k))
                             if not best_k or k > best_k:
                                 best_k = k
                                 best_partner = partner
+                    else:
+                        print ("Partner %s can not help us: Out of ratio" % (partner['shortname']))
 
                 if best_partner:
                     print("Send partner %s provision request" % partner['shortname'])
